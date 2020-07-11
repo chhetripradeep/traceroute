@@ -8,9 +8,18 @@ import (
 	"github.com/chhetripradeep/traceroute"
 )
 
+func usage()  {
+	fmt.Println("You must specify one host as argument.")
+	flag.Usage()
+}
+
 func main() {
-	host := flag.Arg(0)
-	hops, errs := TraceRoute(host)
+	hosts := flag.Args()
+	if hosts == nil || len(hosts) == 0 {
+		usage()
+		return
+	}
+	hops, errs := TraceRoute(hosts[0])
 	for {
 		select {
 		case err, ok := <-errs:
