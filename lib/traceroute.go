@@ -1,11 +1,13 @@
-package traceroute
+package lib
 
 import (
 	"fmt"
-	"golang.org/x/net/icmp"
-	"golang.org/x/net/ipv4"
+	"log"
 	"net"
 	"time"
+
+	"golang.org/x/net/icmp"
+	"golang.org/x/net/ipv4"
 )
 
 const MAX_TTL = 64
@@ -23,8 +25,9 @@ type Hop struct {
 func TraceRoute(host string) (<-chan Hop, <-chan error) {
 	errc := make(chan error, 1)
 
-	destination, err := net.ResolveIPAddr("ipv4", host)
+	destination, err := net.Dial("ip:icmp", host)
 	if err != nil {
+		log.Println(err)
 		errc <- fmt.Errorf("name %s is invalid", host)
 		defer close(errc)
 		return nil, errc
@@ -39,13 +42,13 @@ func TraceRoute(host string) (<-chan Hop, <-chan error) {
 		defer close(errc)
 
 		for {
-			hop, err := sendICMPEcho(destination, ttl, ttl, timeout)
+			hop, err := sendICMPEcho(destination.RemoteAddr(), ttl, ttl, timeout)
 			if err != nil {
 				errc <- err
 				break
 			}
 			out <- hop
-			ttl += 1
+			ttl++
 			if hop.Result == "Success" {
 				if hop.Type == ipv4.ICMPTypeEchoReply {
 					break
