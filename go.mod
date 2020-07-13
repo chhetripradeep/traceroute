@@ -1,4 +1,4 @@
-module github.com/chhetripradeep/traceroute
+module traceroute
 
 go 1.14
 

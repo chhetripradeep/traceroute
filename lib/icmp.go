@@ -1,4 +1,4 @@
-package traceroute
+package lib
 
 import (
 	"golang.org/x/net/icmp"
